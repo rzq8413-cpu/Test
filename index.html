@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robototexnika Testi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 30px;
+        }
+        
+        .start-screen {
+            text-align: center;
+        }
+        
+        .start-screen h1 {
+            color: #667eea;
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+        
+        .start-screen p {
+            font-size: 20px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 22px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 100%;
+            font-weight: bold;
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .btn:active {
+            transform: scale(0.95);
+        }
+        
+        .quiz-screen {
+            display: none;
+        }
+        
+        .progress {
+            background: #e0e0e0;
+            height: 12px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.3s;
+        }
+        
+        .question-number {
+            color: #667eea;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .question {
+            font-size: 22px;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        
+        .options {
+            margin-bottom: 25px;
+        }
+        
+        .option {
+            background: #f5f5f5;
+            border: 3px solid transparent;
+            padding: 18px;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.2s;
+        }
+        
+        .option:hover {
+            background: #ebebeb;
+            transform: translateX(5px);
+        }
+        
+        .option.selected {
+            border-color: #667eea;
+            background: #e8eaf6;
+        }
+        
+        .option.correct {
+            background: #4caf50 !important;
+            color: white;
+            border-color: #4caf50 !important;
+        }
+        
+        .option.wrong {
+            background: #f44336 !important;
+            color: white;
+            border-color: #f44336 !important;
+        }
+        
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        .next-btn {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .result-screen {
+            display: none;
+            text-align: center;
+        }
+        
+        .result-screen h2 {
+            color: #667eea;
+            font-size: 36px;
+            margin-bottom: 25px;
+        }
+        
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 30px;
+            color: white;
+        }
+        
+        .score-percentage {
+            font-size: 48px;
+            font-weight: bold;
+        }
+        
+        .score-text {
+            font-size: 18px;
+        }
+        
+        .score-details {
+            font-size: 24px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .start-screen h1 {
+                font-size: 26px;
+            }
+            
+            .question {
+                font-size: 19px;
+            }
+            
+            .option {
+                font-size: 18px;
+                padding: 15px;
+            }
+            
+            .btn {
+                font-size: 20px;
+                padding: 15px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Start Screen -->
+        <div class="start-screen" id="startScreen">
+            <h1>🤖 Robototexnika Testi</h1>
+            <p>51 ta savol sizni kutmoqda!</p>
+            <button class="btn" onclick="startQuiz()">Testni Boshlash</button>
+        </div>
+        
+        <!-- Quiz Screen -->
+        <div class="quiz-screen" id="quizScreen">
+            <div class="progress">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="question-number" id="questionNumber"></div>
+            <div class="question" id="question"></div>
+            <div class="options" id="options"></div>
+            <button class="btn next-btn" id="nextBtn" onclick="nextQuestion()">Keyingi Savol ➡️</button>
+        </div>
+        
+        <!-- Result Screen -->
+        <div class="result-screen" id="resultScreen">
+            <h2>🎉 Test Yakunlandi!</h2>
+            <div class="score-circle">
+                <div class="score-percentage" id="scorePercentage"></div>
+                <div class="score-text">Ball</div>
+            </div>
+            <div class="score-details" id="scoreDetails"></div>
+            <button class="btn" onclick="restartQuiz()">🔄 Qayta Boshlash</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {q:"Arduinoda shart operatori qanday yoziladi?",c:["A) While","B) For","C) Break","D) IF"],a:3},
+            {q:"DHT11 sensor qanday sensor?",c:["A) Temperatura o'lchovchi","B) Namlik o'lchovchi","C) Shovqin o'lchovchi","D) A va B to'g'ri"],a:3},
+            {q:"Quyidagilardan qaysi biri xayoliy robot EMAS?",c:["A) R2-D2","B) Unimate","C) Cyberdyne Systems Model 101","D) Leytenant komandiri"],a:1},
+            {q:"Robotika so'zi Isaak Asimovning 1941-yilda qaysi hikoyasida uchragan?",c:["A) Yolgʻonchi","B) Horovod","C) Haqiqatlar olami","D) Dunyoda yagona emasmiz"],a:0},
+            {q:"Robototexnik tizimda qanday o'zgartirishlar aks etadi?",c:["A) energiya, massa","B) massa","C) kuch","D) A va C to'g'ri"],a:0},
+            {q:"DHT11 sensori pinlari vazifalari berilgan qatorni toping?",c:["A) VCC, DATA","B) VCC, DATA, NC, GND","C) NC, GND, ADA","D) R2-D2"],a:1},
+            {q:"DHT sensorlari ikkita asosiy qismdan iborat, bular qanday qismlar?",c:["A) Sig'imli namlik sensori va thermistor","B) Sig'imli namlik sensori va Fotodiod","C) Thermistor va Kondensator","D) Diod va Thermistor"],a:0},
+            {q:"Asimovning Robototexnika qonunlaridan maqsad nima edi?",c:["A) Robotlar doimo insoniyatga xizmat qilishi","B) Robotlar bizning ustalarimiz bo'lishi","C) Robotlarning sezgir bo'lishi","D) Harbiylar robotlarni nazorat qilmasligi"],a:0},
+            {q:"'Robot' so'zini 1920-yilda Karel Chapek qaysi asarida ishlatgan?",c:["A) Yolgʻonchi","B) Horovod","C) R.U.R","D) Dunyoda yagona emasmiz"],a:2},
+            {q:"Sanoat robotlari qanday ko'rinishga ega?",c:["A) Oyoqlari va qo'llari bilan gumanoid","B) Kichik changyutgich","C) Ko'p bo'g'inli qo'l","D) Yumshoq, mo'ynali uy hayvoni"],a:2},
+            {q:"Qaysi muhandislik sohasi robotlar harakatini tushunishga ixtisoslashgan?",c:["A) Elektrotexnika","B) Mashinasozlik","C) Sanoat muhandisligi","D) Qurilish ishi"],a:1},
+            {q:"Qaysi muhandislik sohasi ishlab chiqarish jarayonlarini tushunishga ixtisoslashgan?",c:["A) Elektrotexnika","B) Mashinasozlik","C) Sanoat muhandisligi","D) Qurilish ishi"],a:2},
+            {q:"Qaysi muhandislik sohasi robotli boshqaruv tizimlarini tushunishga ixtisoslashgan?",c:["A) Elektrotexnika","B) Mashinasozlik","C) Sanoat muhandisligi","D) Qurilish ishi"],a:0},
+            {q:"Quyidagi fikrlardan qaysi biri to'g'ri?",c:["A) Barcha robotlar aqlli","B) Barcha robotlar odamlar kabi ishlaydi","C) Barcha robotlar masofadan boshqariladi","D) Barcha robotlar elektron dasturlashdan foydalanadigan elektromexanik mashinalar"],a:3},
+            {q:"Quyidagi tizimlardan qaysi biri dvigatel va uzatmalardan foydalanadi?",c:["A) Strukturaviy tizim","B) Harakatlanish tizimi","C) Sensor va qayta aloqa tizimi","D) Nazorat tizimi"],a:1},
+            {q:"Mikrokontroller quyidagi tizimlarning qaysi biriga kiradi?",c:["A) Strukturaviy tizim","B) Harakatlanish tizimi","C) Sensor va qayta aloqa tizimi","D) Nazorat tizimi"],a:3},
+            {q:"Quyidagi tizimlardan qaysi biri qo'llab-quvvatlash va barqarorlikni ta'minlaydi?",c:["A) Strukturaviy tizim","B) Harakatlanish tizimi","C) Sensor va qayta aloqa tizimi","D) Nazorat tizimi"],a:0},
+            {q:"Quyidagi tizimlardan qaysi biri transduserdan foydalanadi?",c:["A) Strukturaviy tizim","B) Harakatlanish tizimi","C) Sensor va qayta aloqa tizimi","D) Nazorat tizimi"],a:2},
+            {q:"Bog'langan robotlar qayerda ko'proq qo'llaniladi?",c:["A) Sanoat korxonasida","B) Talaba robotida","C) Harbiy dasturlarda","D) Avtomobil ilovalarida"],a:0},
+            {q:"Quyidagilardan qaysi biri talaba robotining quvvat manbai hisoblanadi?",c:["A) O'zgaruvchan tok","B) Batareyalar","C) Pnevmatika","D) Gidravlika"],a:1},
+            {q:"Quyidagilardan qaysi biri ishlashi uchun quvvat manbai kerak emas?",c:["A) Harakatlanish tizimi","B) Nazorat tizimi","C) Sensor va qayta aloqa tizimi","D) Strukturaviy tizim"],a:3},
+            {q:"Robot sensorlaridan robot boshqaruvchilariga yuboriladigan ma'lumotlar qanday nomlanadi?",c:["A) harorat","B) bosim","C) fikr-mulohaza","D) signal"],a:3},
+            {q:"Quyidagi atamalardan qaysi biri robot qo'lining aylanish harakatiga tegishli?",c:["A) aylanuvchi","B) aks","C) orqaga qaytish","D) rulon"],a:3},
+            {q:"Robot bloki ichida ishlaydigan joy qanday nomlanadi?",c:["A) atrof-muhit","B) fazoviy asos","C) ish konverti","D) istisno zonasi"],a:2},
+            {q:"Quyidagi atamalardan qaysi biri robotning beshta asosiy qismidan biri EMAS?",c:["A) periferik asboblar","B) yakuniy effektorlar","C) boshqaruvchi","D) haydash"],a:0},
+            {q:"Robototexnika ultiratovish sensorlari uchun qanday datchikdan foydalaniladi?",c:["A) HC-SR04","B) ESP8266","C) ESP32","D) RS232"],a:0},
+            {q:"Robotlar Isaak Asimovning uchta qonuniga bo'ysunishi kerak. Birinchi qonun qanday?",c:["A) Robot barcha buyruqlarga bo'ysunishi kerak","B) Hech bir robot insonga zarar yetkaza olmaydi","C) Robot o'z xavfsizligini ta'minlashi kerak","D) A va C to'g'ri"],a:1},
+            {q:"Roomba robotining vazifasi nima?",c:["A) Chang tozalash","B) Yorug'lik bilan ishlash","C) Haroratni o'lchash","D) B va C to'g'ri"],a:0},
+            {q:"'Robot' so'zini birinchi bo'lib kim kiritgan?",c:["A) Isaak Asimov","B) Karel Capek","C) Isaak Asimov","D) R2-D2"],a:1},
+            {q:"'Robotexnika' atamasi birinchi marta qayerda ishlatilgan?",c:["A) Yulduzli trek to'plamida","B) GM sanoat zavodida","C) Massachusets texnologiya instituti","D) Ilmiy-fantastik hikoyalarda"],a:3},
+            {q:"LM35 sensorining vazifasi nima?",c:["A) Gazlanish darajasini o'lchash","B) Haroratni o'lchash","C) Shovqin darajasini o'lchash","D) Dvigatel nosozligini o'lchash"],a:1},
+            {q:"Robototexnika so'zi chex tilida qanday ma'noni anglatadi?",c:["A) majburiy mehnat","B) Robotlarni boshqarish","C) Robotics","D) San'at"],a:0},
+            {q:"Qarorlarni qo'llab-quvvatlash dasturlari menejerlarga nima qilishda yordam beradi?",c:["A) byudjet prognozlari","B) vizual taqdimotlar","C) biznes qarorlari","D) dam olish jadvali"],a:2},
+            {q:"Robotning bo'g'inlar soni nimani belgilaydi?",c:["A) erkinlik darajalari","B) yuk ko'tarish qobiliyati","C) operatsion chegaralar","D) moslashuvchanlik"],a:0},
+            {q:"Funktsional sanoat roboti odatda qancha erkinlik darajasiga ega?",c:["A) uchta","B) to'rtta","C) olti","D) sakkiz"],a:2},
+            {q:"Robot blokining qaysi qismi dasturlashtirilishi mumkin bo'lgan kompyuter sxemasini o'z ichiga oladi?",c:["A) sensor","B) boshqaruvchi","C) qo'l","D) yakuniy effector"],a:1},
+            {q:"Ubuntu OT Sudo apt update buyrug'ining vazifasi nima?",c:["A) OT o'chirish","B) Windowsda cmd ochish","C) Sozlamalar bandini ochish","D) Dasturiy ta'minot ro'yxatini yangilash"],a:3},
+            {q:"Arduinoda voidloop() funksiyasining vazifasi nima?",c:["A) Vaqt bilan ishlash","B) Ketma-ket aloqani 9600bit/s ishga tushiradi","C) Bir marta qo'laniladigan jarayonlar","D) Doimiy ravishda bajariladigan kodlar"],a:3},
+            {q:"Arduinoda delay funksiyasining vazifasi nima?",c:["A) ma'lumotni chop etish","B) vaqt bilan ishlash","C) shart bilan ishlash","D) sikl bilan ishlash"],a:1},
+            {q:"HC-SR04 sensorning vazifasi nima?",c:["A) Robot harakatni 90 gradusga burish","B) To'siqacha masofani o'lchash","C) DC motor haroratini o'lchash","D) AC motorni boshqarish"],a:1},
+            {q:"Arduinoda pinMode qanday funksiya?",c:["A) Pinlarni kirish/chiqish sifatida sozlash","B) Sensorlarni bog'lash","C) Haroratni o'lchash","D) A va C to'g'ri"],a:0},
+            {q:"Double turi qanday sonlar bilan ishlaydi?",c:["A) butun","B) haqiqiy","C) satr","D) kasr"],a:1},
+            {q:"Arduinoda Serial.begin(9600) komandasining vazifasi nima?",c:["A) Vaqt bilan ishlash","B) Ketma-ket aloqani 9600bit/s ishga tushiradi","C) Axborotni 9600 sekunda chop etadi","D) Dastur ishini 9600 sekunda yakunlaydi"],a:1},
+            {q:"PYROBOT kutubxonasi qanday maqsadda yaratilgan?",c:["A) Robotlarni yoqish","B) Robotlarni virtual yaratish","C) Robotlar uchun yuqori darajada interfeys","D) Robotlarni kuzatish"],a:2},
+            {q:"KY-001 modulli qanday modul?",c:["A) Chang tozalash modulli","B) Harorat sensori modulli","C) TMP35 sensori modulli","D) issiqlik sensori modulli"],a:3},
+            {q:"TRIK Studio qanday dastur?",c:["A) Arduino ushbu dastursiz ishlamaydi","B) Tinkercad yordamchi dasturi","C) Yorug'likni o'lchash dasturi","D) Arduino bilan ishlashni o'rganish uchun virtual dastur"],a:3},
+            {q:"Robotlarga dastur yozishda qo'laniladigan asosiy dasturlash tillari?",c:["A) Python, Javascript","B) Python, C++","C) C++, Node.js","D) Delphi, C++, Pascal"],a:1},
+            {q:"Python dasturlash tillidagi OpenCV kutubxonasining vazifasi nima?",c:["A) Obyektlarni sozlash","B) Obyektlarni aniqlash va kuzatish","C) TMP35 sensori bilan aloqa","D) issiqlik sensori ishga tushirish"],a:1},
+            {q:"C++ dasturlash tillidagi RL kutubxonasining vazifasi nima?",c:["A) Robot kinematikasi, dinamikasi, harakat rejalari","B) Robotlar interfaceini nazorat qilish","C) Robotning statikasi bilan shug'ilanish","D) C++ va Python tillarini bog'lash"],a:0},
+            {q:"Arduino bilan ishlashda ACS712 sensorining vazifasi nima?",c:["A) Strukturaviy tizim bilan ishlash","B) Arduinoni sozlash","C) Zariyad oqimini o'lchash va qarshilikni nazorat qilish","D) Tok kuchni oshirib beradi"],a:2},
+            {q:"Ushbu readHumidity() funksiyasining vazifasi nima?",c:["A) Namlikni o'lchash","B) Issiqlikni o'lchash","C) Yorug'likni o'lchash","D) B va C to'g'ri"],a:0}
+        ];
+
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answered = false;
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function startQuiz() {
+            currentQuestions = shuffleArray(questions);
+            currentQuestionIndex = 0;
+            score = 0;
+            
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('quizScreen').style.display = 'block';
+            document.getElementById('resultScreen').style.display = 'none';
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            answered = false;
+            const question = currentQuestions[currentQuestionIndex];
+            
+            document.getElementById('questionNumber').textContent = `Savol ${currentQuestionIndex + 1} / ${currentQuestions.length}`;
+            document.getElementById('question').textContent = question.q;
+            
+            const optionsHtml = question.c.map((option, index) => 
+                `<div class="option" onclick="selectAnswer(${index})">${option}</div>`
+            ).join('');
+            
+            document.getElementById('options').innerHTML = optionsHtml;
+            document.getElementById('nextBtn').style.display = 'none';
+            
+            const progress = ((currentQuestionIndex) / currentQuestions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function selectAnswer(selectedIndex) {
+            if (answered) return;
+            
+            answered = true;
+            const question = currentQuestions[currentQuestionIndex];
+            const options = document.querySelectorAll('.option');
+            
+            options.forEach((option, index) => {
+                option.classList.add('disabled');
+                if (index === question.a) {
+                    option.classList.add('correct');
+                }
+                if (index === selectedIndex && selectedIndex !== question.a) {
+                    option.classList.add('wrong');
+                }
+            });
+            
+            if (selectedIndex === question.a) {
+                score++;
+            }
+            
+            document.getElementById('nextBtn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < currentQuestions.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            const percentage = Math.round((score / currentQuestions.length) * 100);
+            
+            document.getElementById('quizScreen').style.display = 'none';
+            document.getElementById('resultScreen').style.display = 'block';
+            
+            document.getElementById('scorePercentage').textContent = percentage + '%';
+            document.getElementById('scoreDetails').textContent = `${score} / ${currentQuestions.length} to'g'ri javob`;
+        }
+
+        function restartQuiz() {
+            startQuiz();
+        }
+    </script>
+</body>
+</html>
