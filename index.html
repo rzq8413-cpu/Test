@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Malumotlarni intellekual tahlil qilish Testi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 30px;
+        }
+        
+        .start-screen {
+            text-align: center;
+        }
+        
+        .start-screen h1 {
+            color: #667eea;
+            font-size: 32px;
+            margin-bottom: 20px;
+        }
+        
+        .start-screen p {
+            font-size: 20px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 22px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 100%;
+            font-weight: bold;
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .btn:active {
+            transform: scale(0.95);
+        }
+        
+        .quiz-screen {
+            display: none;
+        }
+        
+        .progress {
+            background: #e0e0e0;
+            height: 12px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            transition: width 0.3s;
+        }
+        
+        .question-number {
+            color: #667eea;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .question {
+            font-size: 22px;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        
+        .options {
+            margin-bottom: 25px;
+        }
+        
+        .option {
+            background: #f5f5f5;
+            border: 3px solid transparent;
+            padding: 18px;
+            margin-bottom: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.2s;
+        }
+        
+        .option:hover {
+            background: #ebebeb;
+            transform: translateX(5px);
+        }
+        
+        .option.selected {
+            border-color: #667eea;
+            background: #e8eaf6;
+        }
+        
+        .option.correct {
+            background: #4caf50 !important;
+            color: white;
+            border-color: #4caf50 !important;
+        }
+        
+        .option.wrong {
+            background: #f44336 !important;
+            color: white;
+            border-color: #f44336 !important;
+        }
+        
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        
+        .next-btn {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .result-screen {
+            display: none;
+            text-align: center;
+        }
+        
+        .result-screen h2 {
+            color: #667eea;
+            font-size: 36px;
+            margin-bottom: 25px;
+        }
+        
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 30px;
+            color: white;
+        }
+        
+        .score-percentage {
+            font-size: 48px;
+            font-weight: bold;
+        }
+        
+        .score-text {
+            font-size: 18px;
+        }
+        
+        .score-details {
+            font-size: 24px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .start-screen h1 {
+                font-size: 26px;
+            }
+            
+            .question {
+                font-size: 19px;
+            }
+            
+            .option {
+                font-size: 18px;
+                padding: 15px;
+            }
+            
+            .btn {
+                font-size: 20px;
+                padding: 15px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Start Screen -->
+        <div class="start-screen" id="startScreen">
+            <h2> Malumotlarni intellekual tahlil qilish Testi</h2>
+            <p>175 ta savol sizni kutmoqda 5ki tupoy!</p>
+            <button class="btn" onclick="startQuiz()">Testni Boshlash</button>
+        </div>
+        
+        <!-- Quiz Screen -->
+        <div class="quiz-screen" id="quizScreen">
+            <div class="progress">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="question-number" id="questionNumber"></div>
+            <div class="question" id="question"></div>
+            <div class="options" id="options"></div>
+            <button class="btn next-btn" id="nextBtn" onclick="nextQuestion()">Keyingi Savol ➡️</button>
+        </div>
+        
+        <!-- Result Screen -->
+        <div class="result-screen" id="resultScreen">
+            <h2>🎉 Test Yakunlandi maladets!</h2>
+            <div class="score-circle">
+                <div class="score-percentage" id="scorePercentage"></div>
+                <div class="score-text">Natija</div>
+            </div>
+            <div class="score-details" id="scoreDetails"></div>
+            <button class="btn" onclick="restartQuiz()">Hali tayyor emassiz Qayta Boshlang</button>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+{q:"Ma'lumotlar fanining asosiy predmeti nima?",c:["A) Dasturlash","B) Ma'lumotlardan bilim olish","C) Internet texnologiyalari","D) Kompyuter tarmoqlari"],a:1},
+{q:"Data Science ning asosiy maqsadi:",c:["A) Qaror qabul qilishni qo'llab-quvvatlash","B) Ma'lumotlarni saqlash","C) Grafik chizish","D) Hisobot yozish"],a:0},
+{q:"Strukturaviy ma'lumotga misol:",c:["A) Video","B) Rasm","C) Jadval","D) Audio"],a:2},
+{q:"Nostrukturaviy ma'lumot:",c:["A) SQL jadval","B) Excel","C) Diagramma","D) Matn, video"],a:3},
+{q:"Ma'lumotlarni tozalash nima?",c:["A) O'chirish","B) Xatolarni tuzatish","C) Saqlash","D) Chop etish"],a:1},
+{q:"Missing value bu:",c:["A) To'liq ma'lumot","B) Maksimal qiymat","C) Yetishmayotgan qiymat","D) Minimal qiymat"],a:2},
+{q:"Ma'lumotlarni integratsiya qilish nima?",c:["A) Ma'lumotlarni o'chirish","B) Arxivlash","C) Grafik chizish","D) Turli manbalardagi ma'lumotlarni birlashtirish"],a:3},
+{q:"Integratsiya qayerda qo'llaniladi?",c:["A) Bir nechta bazadan ma'lumot olishda","B) Rasm chizishda","C) Matn yozishda","D) Dizaynda"],a:0},
+{q:"Statistika nimani o'rganadi?",c:["A) Internet","B) Kompyuter tuzilishi","C) Dasturlash","D) Ma'lumotlarni tahlil qilish"],a:3},
+{q:"O'rtacha qiymat formulasi:",c:["A) Eng kichik qiymat","B) Eng katta qiymat","C) Yig'indi / soni","D) Farq"],a:2},
+{q:"Korrelatsiya nimani o'lchaydi?",c:["A) Tezlikni","B) Rangni","C) Hajmni","D) Bog'liqlik darajasini"],a:3},
+{q:"Korrelatsiya qiymati oralig'i:",c:["A) -1 dan +1 gacha","B) 0--10","C) 1--100","D) Cheksiz"],a:0},
+{q:"Ma'lumotlarni vizualizatsiya qilishning asosiy maqsadi nima?",c:["A) Ma'lumotlarni yoritish","B) Ma'lumotni tasvirda ifodalash","C) Ma'lumotlarni arxivlash","D) Ma'lumotlarni saqlash"],a:1},
+{q:"Quyidagi vositalardan qaysi biri ma'lumotlarni vizualizatsiya qilish uchun keng qo'llaniladi?",c:["A) Python","B) Excel","C) Tableau","D) Notepad"],a:2},
+{q:"Tasniflash algoritmlari nima uchun ishlatiladi?",c:["A) Ma'lumotlarni tahlil qilish","B) Ma'lumotlarni yig'ish","C) Ma'lumotlarni arxivlash","D) Ma'lumotlarni guruhlarga ajratish"],a:3},
+{q:"Tasniflashda ishlatiladigan asosiy usul?",c:["A) Regressiya","B) Klasifikatsiya qilish","C) Supervitsiyalangan o'rganish","D) KNN"],a:1},
+{q:"Klasterlash nima?",c:["A) Model yaratish","B) Kategoriyalarga ajratish","C) Regressiya qilish","D) Ma'lumotlarni guruhlarga ajratish"],a:3},
+{q:"K-means algoritmi nima qiladi?",c:["A) Ma'lumotlarni k ta klasterga ajratadi","B) Ma'lumotlarni tozalaydi","C) Klasterlarni integratsiya qiladi","D) Yangi xulosa chiqaradi"],a:0},
+{q:"Assotsiatsiya qoidalari nima?",c:["A) Kategoriyalarga ajratish","B) Ma'lumotlar orasidagi bog'lanishni topish","C) Ma'lumotlarni tozalash","D) Modelni yaratish"],a:1},
+{q:"Assotsiatsiya qoidalari nima uchun ishlatiladi?",c:["A) Grafik chizish","B) Ma'lumotlarni tozalash","C) Mahsulotlar orasidagi bog'lanishni aniqlash","D) Modelni yaratish"],a:2},
+{q:"Anomaliyani aniqlash nima?",c:["A) Ma'lumotlarni tahlil qilish","B) Oddiy va noodatiy ma'lumotlarni ajratish","C) Kategoriyalarni ajratish","D) Modelni yaratish"],a:1},
+{q:"Anomaliyalar odatda nima qiladi?",c:["A) Statistika orqali o'zgaradi","B) Yuzaga chiqmaydi","C) Eng o'zgacha va kutilmagan xulq-atvorni ko'rsatadi","D) Faqat tahlil qiladi"],a:2},
+{q:"Nazoratli o'rganish nima?",c:["A) Kategoriyalarni ajratish","B) Modelni kirish va chiqish ma'lumotlari bilan o'rganish","C) Ma'lumotlarni tozalash","D) Tahlil qilish"],a:1},
+{q:"Nazoratli o'rganishda qanday ma'lumotlar ishlatiladi?",c:["A) Kirish va chiqish ma'lumotlari","B) Faqat kirish ma'lumotlari","C) Faqat chiqish ma'lumotlari","D) Noaniq ma'lumotlar"],a:0},
+{q:"Nazoratsiz o'rganish nima?",c:["A) Kirish ma'lumotlari bilan o'rganish","B) Kategoriyalarni aniqlash uchun ma'lumotlarni tahlil qilish","C) Faqat regressiya qilish","D) Model yaratish"],a:1},
+{q:"Ma'lumotlar fanining vazifalaridan biri:",c:["A) Matn terish","B) Ma'lumotlarni tahlil qilish","C) Kompyuter yig'ish","D) Dastur sotish"],a:1},
+{q:"Data Science qaysi fanlar bilan bog'liq?",c:["A) Faqat matematika","B) Biologiya","C) Statistika, IT, ML","D) Fizika"],a:2},
+{q:"Big Data ning \"3V\" xususiyatlari:",c:["A) Volume, Velocity, Variety","B) Value, Visual, Voice","C) Vector, Volume, View","D) Variant, Version, Value"],a:0},
+{q:"Big Data hajmi odatda:",c:["A) Kichik","B) O'rta","C) Juda katta","D) Nol"],a:2},
+{q:"Outlier nima?",c:["A) Oddiy qiymat","B) Nol","C) O'rtacha qiymat","D) Chetdagi noodatiy qiymat"],a:3},
+{q:"Tozalashda qaysi amal bajariladi?",c:["A) Kod yozish","B) Grafik chizish","C) Model yaratish","D) Duplikatlarni olib tashlash"],a:3},
+{q:"Transformatsiya deganda nima tushuniladi?",c:["A) Ma'lumotni yashirish","B) Ma'lumotni o'chirish","C) Ma'lumot formatini o'zgartirish","D) Ma'lumotni chop etish"],a:2},
+{q:"ETL qisqartmasi nimani anglatadi?",c:["A) Extract, Transform, Load","B) Enter, Test, Learn","C) Encode, Transfer, List","D) Evaluate, Train, Learn"],a:0},
+{q:"Median bu:",c:["A) Nol","B) Eng katta","C) Eng kichik","D) O'rtadagi qiymat"],a:3},
+{q:"Moda bu:",c:["A) O'rtacha","B) Eng ko'p takrorlangan qiymat","C) Farq","D) Dispersiya"],a:1},
+{q:"Musbat korrelatsiya bu:",c:["A) Biri oshib biri kamayish","B) Birga oshish","C) Aloqasiz","D) Nol"],a:1},
+{q:"Manfiy korrelatsiya bu:",c:["A) Qarama-qarshi o'zgarish","B) Bir xil o'zgarish","C) Aloqasiz","D) Nol"],a:0},
+{q:"Vizualizatsiyada qaysi shakllar ko'proq ishlatiladi?",c:["A) Hisobotlar","B) Yozuvlar","C) Rasm va audio","D) Grafiklar va diagrammalar"],a:3},
+{q:"Hamma diagramma turlarida qanday xususiyatlar mavjud?",c:["A) Faqat jadval","B) Faqat raqamlar","C) Ma'lumotlar ko'rsatiladi","D) Fayl nomi"],a:2},
+{q:"Qaysi birida tasniflash ishlatiladi?",c:["A) Xatoliklarni aniqlash","B) Mijozlarni segmentlash","C) Ma'lumotlarni integratsiya qilish","D) Statistika qilish"],a:1},
+{q:"Naive Bayes algoritmi qanday ishlaydi?",c:["A) Tahlil qilish uchun vizualizatsiya qiladi","B) Faoliyatni optimallashtiradi","C) Modelni yaratadi","D) To'g'ri tasniflash uchun ehtimollarni hisoblaydi"],a:3},
+{q:"Klasterlashda nima maqsad qilingan?",c:["A) Ma'lumotlarni samarali guruhlash","B) Yangi ma'lumot kiritish","C) O'zgartirishni to'xtatish","D) Hisobot tayyorlash"],a:0},
+{q:"Qaysi metod klasterlash uchun ishlatiladi?",c:["A) Naive Bayes","B) Regressiya","C) K-means","D) Decision Tree"],a:2},
+{q:"Apriori algoritmi nima uchun ishlatiladi?",c:["A) Assotsiatsiya qoidalarini topish","B) Regressiya qilish","C) Kategoriyalarni ajratish","D) Klasifikatsiya qilish"],a:0},
+{q:"Apriori algoritmining asosiy maqsadi nima?",c:["A) Modelni baholash","B) Ma'lumotlarni tozalash","C) Ma'lumotlar orasidagi qoidalarni aniqlash","D) Hisobotni tayyorlash"],a:2},
+{q:"Anomaliya aniqlashda qaysi metodlar ishlatiladi?",c:["A) Regressiya qilish","B) Outlierlarni aniqlash","C) Ma'lumotni tozalash","D) Grafik chizish"],a:1},
+{q:"Anomaliyalar nimalardan iborat bo'lishi mumkin?",c:["A) Vizualizatsiya","B) Tizimli ma'lumotlar","C) Kategoriyalar","D) O'zgacha yoki noqulay ma'lumotlar"],a:3},
+{q:"Nazoratli o'rganishda ishlatiladigan algoritmlar?",c:["A) KNN, Naive Bayes, Linear Regression","B) K-means, PCA","C) Decision Tree","D) Random Forest"],a:0},
+{q:"Nazoratsiz o'rganish qanday ishlaydi?",c:["A) Faoliyatni analiz qilish","B) Ma'lumotni avtomatik tarzda guruhlarga ajratish","C) Regressiya yaratish","D) Kategoriyalarni o'zgartirish"],a:1},
+{q:"Nazoratli o'rganishning asosiy maqsadi nima?",c:["A) O'rganish uchun ma'lumotlardan samarali foydalanish","B) Modelni baholash","C) Hisobot yozish","D) Grafik yaratish"],a:0},
+{q:"Data Science natijasi nima bo'lishi mumkin?",c:["A) Grafik karta","B) Bashorat modeli","C) Printer","D) Fayl papkasi"],a:1},
+{q:"Ma'lumotlar fanida qaysi rol mavjud?",c:["A) Data Scientist","B) Operator","C) Texnik","D) Dizayner"],a:0},
+{q:"Big Data qayerda ko'p uchraydi?",c:["A) Kitobda","B) Daftarda","C) Ijtimoiy tarmoqlarda","D) Doskada"],a:2},
+{q:"Ma'lumot turi qaysi biri emas?",c:["A) Sonli","B) Kategoriyali","C) Strukturaviy","D) Elektron"],a:3},
+{q:"Ma'lumotlar sifati nimaga ta'sir qiladi?",c:["A) Natijaga","B) Rangga","C) Shriftsizga","D) Fayl nomiga"],a:0},
+{q:"Missing value ni to'ldirish usuli:",c:["A) Saqlash","B) Chop etish","C) O'chirish faylni","D) O'rtacha bilan"],a:3},
+{q:"Transformatsiyaga misol:",c:["A) Kompyuterni o'chirish","B) Faylni o'chirish","C) Sana formatini o'zgartirish","D) Grafik chizish"],a:2},
+{q:"Integratsiya natijasi:",c:["A) Rasm","B) Yagona ma'lumotlar bazasi","C) Video","D) Diagramma"],a:1},
+{q:"Dispersiya nimani ko'rsatadi?",c:["A) Tarqalishni","B) Rangni","C) Hajmni","D) Grafikni"],a:0},
+{q:"Standart og'ish bu:",c:["A) Moda","B) O'rtacha","C) Dispersiyaning ildizi","D) Median"],a:2},
+{q:"Nol korrelatsiya nimani bildiradi?",c:["A) Kuchli bog'lanish","B) Bog'liqlik yo'q","C) To'liq bog'lanish","D) Grafik"],a:1},
+{q:"Regressiya nimaga xizmat qiladi?",c:["A) Kodlash","B) Saqlash","C) Tozalash","D) Bashorat qilish"],a:3},
+{q:"Qaysi vosita ma'lumotlarni interaktiv tarzda vizualizatsiya qilish imkonini beradi?",c:["A) Excel","B) PowerPoint","C) Tableau","D) Word"],a:2},
+{q:"Diagrammalarda qaysi elementlar ma'lumotlarni ko'rsatishda ishlatiladi?",c:["A) Grafiklar","B) Shriftsizlar","C) Ranglar va chiziqlar","D) Tizimlar"],a:2},
+{q:"Qaysi algoritm tasniflash uchun ishlatiladi?",c:["A) KNN","B) Xatolik tahlili","C) Regressiya","D) K-means"],a:0},
+{q:"KNN nima?",c:["A) Korrelatsiya tahlili","B) Regressiya modeli","C) Kategoriyalarga ajratish","D) Tasniflash algoritmi"],a:3},
+{q:"Klasterlashda qaysi metodda ma'lumotlar ortasidagi masofalar hisoblanadi?",c:["A) K-means","B) Random Forest","C) Regressiya","D) Neural Networks"],a:0},
+{q:"Hiyerarxik klasterlash nima?",c:["A) Hisobot yaratish","B) Ma'lumotlarni qatorlashtirish","C) Kategoriyalarni o'zgartirish","D) Klasterlarni daraxt shaklida tashkil qilish"],a:3},
+{q:"Ma'lumotlar orasidagi assotsiatsiyani qanday o'lchash mumkin?",c:["A) Lift ko'rsatkichi","B) Histogram","C) P-qiymat","D) R²"],a:0},
+{q:"Lift ko'rsatkichi nima?",c:["A) Ma'lumotlarni saqlash","B) Qoidaning ahamiyatini ko'rsatadi","C) Rangni o'zgartirish","D) Modelni yaratish"],a:1},
+{q:"Anomaliyani aniqlash uchun qanday metodlar qo'llaniladi?",c:["A) Chizma","B) Faqat tahlil","C) Statistika va Mashina o'rganish","D) O'yinlar"],a:2},
+{q:"Outlier nima?",c:["A) Anomaliyalarga o'xshash noan'anaviy ma'lumot","B) Ma'lumotlar bazasi","C) Kategorik ma'lumot","D) Oddiy qiymat"],a:0},
+{q:"Kategoriyalarni ajratish uchun ishlatiladigan usul?",c:["A) Nazoratli o'rganish","B) Nazoratsiz o'rganish","C) Regresiya","D) Klasterlash"],a:0},
+{q:"Nazoratli o'rganishda qaysi usulda ma'lumotlar va natijalar mavjud?",c:["A) Faqat kirish","B) O'qitish ma'lumotlari va chiqish natijalari","C) Faqat chiqish","D) Model"],a:1},
+{q:"KNN (K-Nearest Neighbors) algoritmi nima uchun ishlatiladi?",c:["A) Grafiklar tayyorlash","B) Ma'lumotlarni vizualizatsiya qilish","C) Ma'lumotlarni tozalash","D) Tasniflash va regressiya uchun"],a:3},
+{q:"Data Science jarayoni nimadan boshlanadi?",c:["A) Vizualizatsiya","B) Ma'lumot yig'ish","C) Model baholash","D) Hisobot"],a:1},
+{q:"Data Science qaysi sohada qo'llanilmaydi?",c:["A) Tibbiyot","B) Bank","C) Marketing","D) Qo'l mehnati"],a:3},
+{q:"Sonli ma'lumotga misol:",c:["A) Ism","B) Rang","C) Yosh","D) Shahar"],a:2},
+{q:"Kategoriyali ma'lumot:",c:["A) Bo'y","B) Vazn","C) Jins","D) Masofa"],a:2},
+{q:"Noto'g'ri format misoli:",c:["A) Sana matn ko'rinishida","B) Son son ko'rinishida","C) Jadval","D) Grafik"],a:0},
+{q:"Tozalash qaysi bosqichda?",c:["A) Dastlabki","B) Oxirgi","C) Baholash","D) Vizual"],a:0},
+{q:"Transformatsiya qaysi bosqichdan keyin amalga oshiriladi?",c:["A) Vizualizatsiyadan keyin","B) Modeldan keyin","C) Tozalashdan keyin","D) Baholashdan keyin"],a:2},
+{q:"Ma'lumotlarni kodlash (encoding) bu:",c:["A) Grafik","B) O'chirish","C) Saqlash","D) Kategoriyani songa aylantirish"],a:3},
+{q:"Statistik tahlil turi:",c:["A) Deskriptiv","B) Grafik","C) Audio","D) Video"],a:0},
+{q:"Inferensial statistika nima?",c:["A) Kodlash","B) Saqlash","C) Chizish","D) Umumlashtirish"],a:3},
+{q:"Chiziqli regressiya modeli:",c:["A) sin(x)","B) x² + y","C) log(x)","D) y = ax + b"],a:3},
+{q:"Mustaqil o'zgaruvchi:",c:["A) Natija","B) Y","C) X","D) Xato"],a:2},
+{q:"Matplotlib kutubxonasi nima uchun ishlatiladi?",c:["A) Ma'lumotlarni tozalash","B) Ma'lumotlarni vizualizatsiya qilish","C) Ma'lumotlarni tahlil qilish","D) Ma'lumotlarni saqlash"],a:1},
+{q:"Qaysi diagramma turi vaqt ketma-ketligini ko'rsatish uchun ishlatiladi?",c:["A) Chiziqli diagramma","B) Pirog diagramma","C) Histogramma","D) Yassi diagramma"],a:0},
+{q:"Tasniflashda o'qitish seti nima?",c:["A) Xatoliklarni toppish","B) Faqat tasniflash uchun zarur bo'lgan malumotlar","C) Modelni yaratish uchun foydalaniladigan ma'lumotlar","D) Tozalash jarayoni"],a:2},
+{q:"Tasniflashda qanday xatoliklar mavjud?",c:["A) Yalpi o'zgaruvchilar","B) Yangi qiymatlar","C) O'zgarmas o'zgaruvchilar","D) False Positive, False Negative"],a:3},
+{q:"Klasterlashning asosiy afzalligi nima?",c:["A) Katta ma'lumotlardan foydalanish imkonini beradi","B) Ma'lumotlarni o'chirish","C) Xatoliklarni aniqlash","D) Modelni qisqartirish"],a:0},
+{q:"Silhouette ko'rsatkichi nima?",c:["A) Regressiya xatolarini baholash","B) Klasterlashning sifatini baholash","C) Modelni baholash","D) Grafik shaklini ko'rsatish"],a:1},
+{q:"Assotsiatsiya qoidalarini qaysi sohalarda ishlatish mumkin?",c:["A) Kodlashda","B) Video yaratishda","C) Savdo va marketing","D) O'yin yaratishda"],a:2},
+{q:"Support (Qo'llab-quvvatlash) nima?",c:["A) Modelni yaratish","B) Rangni o'zgartirish","C) Xatolikni hisoblash","D) Qoidaning qanchalik ko'p uchraganligini ko'rsatadi"],a:3},
+{q:"Anomaliya aniqlashda qaysi metoddan foydalaniladi?",c:["A) Z-test","B) Linear regression","C) Clustering","D) K-means"],a:0},
+{q:"Isolation Forest qanday ishlaydi?",c:["A) Faylni tahlil qiladi","B) Kategoriyalarni ajratadi","C) Klasterlarni ajratadi","D) Anomaliyalarni ajratish uchun ishlatiladi"],a:3},
+{q:"Nazoratsiz o'rganishning afzalligi nima?",c:["A) Hisobot yaratish","B) Ma'lumotlarni tozalash","C) Yangi kategoriyalarni topish","D) Saqlash"],a:2},
+{q:"Qaysi algoritm nazoratsiz o'rganishga misol bo'la oladi?",c:["A) Linear Regression","B) K-means","C) Naive Bayes","D) Random Forest"],a:1},
+{q:"Neyron tarmoqlari nima?",c:["A) Sun'iy neyronlardan tashkil topgan tizimlar","B) Kategoriyalarni ajratish algoritmi","C) Ma'lumotlarni to'plash vositasi","D) Regressiya modeli"],a:0},
+{q:"Data Science qaysi savolga javob beradi?",c:["A) Qanday?","B) Nega va nima bo'ladi?","C) Qayerda?","D) Kim?"],a:1},
+{q:"Data Science asosida nima yotadi?",c:["A) Ma'lumot","B) Qurilma","C) Tarmoq","D) Elektr"],a:0},
+{q:"Big Data texnologiyasiga misol:",c:["A) Notepad","B) Word","C) Paint","D) Hadoop"],a:3},
+{q:"Big Data ning asosiy muammosi:",c:["A) Shriftsiz","B) Rang","C) Hajm","D) Ovoz"],a:2},
+{q:"Noise nima?",c:["A) Model","B) To'liq ma'lumot","C) Grafik","D) Keraksiz shovqinli ma'lumot"],a:3},
+{q:"Ma'lumotlarni normallashtirish bu:",c:["A) Masshtablashtirish","B) O'chirish","C) Yig'ish","D) Arxivlash"],a:0},
+{q:"One-Hot Encoding qayerda ishlatiladi?",c:["A) Audio","B) Rasmda","C) Kategoriyali ma'lumotlarda","D) Video"],a:2},
+{q:"Transformatsiya nimani yaxshilaydi?",c:["A) Model ishlashini","B) Rangni","C) Fayl nomini","D) Printer tezligini"],a:0},
+{q:"Tanlanma nima?",c:["A) Butun to'plam","B) Ma'lumotning bir qismi","C) Grafik","D) Model"],a:1},
+{q:"Populyatsiya bu:",c:["A) Jadval","B) Tanlanma","C) Barcha ma'lumotlar","D) Diagramma"],a:2},
+{q:"Bog'liq o'zgaruvchi:",c:["A) Parametr","B) X","C) Kirish","D) Y"],a:3},
+{q:"Regressiya qaysi sohada ishlatiladi?",c:["A) Musiqada","B) Rasm chizishda","C) Dizaynda","D) Iqtisodiyotda"],a:3},
+{q:"Rasmli diagramma nima uchun ishlatiladi?",c:["A) Qismning butuniga nisbatan ulushini ko'rsatish","B) Tarqalishni ko'rsatish","C) O'zgaruvchilarning bog'lanishini ko'rsatish","D) Regressiya modelini ko'rsatish"],a:0},
+{q:"Qaysi vosita ma'lumotlarni diagramma va grafiklar shaklida taqdim etadi?",c:["A) Microsoft Word","B) Notepad","C) Power BI","D) PowerPoint"],a:2},
+{q:"Tasniflashda qaysi ko'rsatkich modelning ishlashini baholaydi?",c:["A) AUC-ROC","B) Hash qiymati","C) Hash diagrammasi","D) Mahsulot nomi"],a:0},
+{q:"Qaysi model tasniflash uchun eng ko'p qo'llaniladi?",c:["A) Linear Regression","B) Decision Tree","C) K-means","D) ANOVA"],a:1},
+{q:"Qaysi metodda klasterlar o'zaro eng kam masofaga ega?",c:["A) Naive Bayes","B) K-means","C) Random Forest","D) Support Vector Machine"],a:1},
+{q:"Klasterlashda qaysi turdagi ma'lumotlar ishlatiladi?",c:["A) Matnli","B) Yalpi","C) Qo'l bilan yozilgan","D) Strukturaviy"],a:3},
+{q:"Confidence nima?",c:["A) Faylni nomlash","B) Grafik shakli","C) Model xatosi","D) Qoida yuzasidan ehtimolni ko'rsatadi"],a:3},
+{q:"Assotsiatsiya qoidalaridan foydalanishning afzalligi nima?",c:["A) Fayl hajmini kamaytirish","B) Rangni yaxshilash","C) Qarorlarni yaxshilash","D) O'yinlar yaratish"],a:2},
+{q:"Anomaliyani aniqlashda qanday usul yordam beradi?",c:["A) Statistical process control","B) SQL","C) HTML","D) CSS"],a:0},
+{q:"Anomaliyani aniqlashda xatoliklarni kamaytirish uchun nima qilinadi?",c:["A) O'yin yaratish","B) Rangni o'zgartirish","C) Grafik shaklini yaratish","D) Ma'lumotlar tozalash va normalizatsiya"],a:3},
+{q:"Qaysi algoritm nazoratli o'rganishda ishlatiladi?",c:["A) Support Vector Machine","B) K-means","C) PCA","D) DBSCAN"],a:0},
+{q:"Nazoratli o'rganishda modelni o'rganish qanday amalga oshiriladi?",c:["A) Hisobot tayyorlash","B) Faqat statistik tahlil","C) Ma'lumotlarni tozalash","D) Ma'lumotlar va natijalarning munosabati o'rganiladi"],a:3},
+{q:"KNN algoritmi qanday ishlaydi?",c:["A) Tahlil qilish","B) Hisobot yaratish","C) Yaqin qo'shnilarni topish orqali tasniflash","D) Regressiya hisoblash"],a:2},
+{q:"Data Science fan sifatida nimani o'rganadi?",c:["A) Kompyuter tuzilishi","B) Ma'lumotlar bilan ishlash usullari","C) Algoritm yozish","D) Dastur dizayni"],a:1},
+{q:"Data Science da asosiy natija:",c:["A) Kod","B) Model","C) Jadval","D) Diagramma"],a:1},
+{q:"Time-series ma'lumot bu:",c:["A) Vaqtga bog'liq","B) Rasm","C) Matn","D) Video"],a:0},
+{q:"Sensor ma'lumotlari qaysi turga kiradi?",c:["A) Qo'lda yozilgan","B) Kichik data","C) Big Data","D) Grafik"],a:2},
+{q:"Duplikat bu:",c:["A) Grafik","B) Yangi yozuv","C) To'liq yozuv","D) Takroriy yozuv"],a:3},
+{q:"Tozalashsiz model natijasi:",c:["A) Ideal","B) Mukammal","C) Noaniq","D) To'liq"],a:2},
+{q:"Integratsiya muammosi:",c:["A) Format mos kelmasligi","B) Rang farqi","C) O'lcham","D) Grafik"],a:0},
+{q:"Ma'lumotlarni birlashtirish turi:",c:["A) Delete","B) Join","C) Print","D) Copy"],a:1},
+{q:"Histogram nimani ko'rsatadi?",c:["A) Regressiyani","B) Bog'lanishni","C) Ta'qsimotni","D) Modelni"],a:2},
+{q:"Statistik tahlil qayerda ishlatiladi?",c:["A) O'yinda","B) Rasm chizishda","C) Dizaynda","D) Ilmiy tadqiqotda"],a:3},
+{q:"Ko'p o'zgaruvchili regressiya:",c:["A) Bir nechta X bilan","B) Bitta X bilan","C) Grafik","D) Jadval"],a:0},
+{q:"Regressiya xatosi nima?",c:["A) Rang farqi","B) Haqiqiy va bashorat farqi","C) Hajm farqi","D) Format"],a:1},
+{q:"Vizualizatsiyaning asosiy elementlari nimalardan iborat?",c:["A) Ma'lumotlar, grafiklar, ranglar","B) Fayllar, xatolar, diagrammalar","C) Faoliyatlar, o'yinlar, ko'rsatmalar","D) Foydalanuvchi interfeislari"],a:0},
+{q:"Grafika (graph) nimani ko'rsatadi?",c:["A) Yozuvni","B) Jadvaldagi ma'lumotni","C) Bog'lanishlarni yoki munosabatlarni","D) Faylni"],a:2},
+{q:"Decision Tree algoritmi qanday ishlaydi?",c:["A) Tarqalish diagrammasini yaratadi","B) Kategoriyalarni ajratadi","C) Bog'lanishlarni topadi","D) Daraxt shaklida qarorlar qabul qiladi"],a:3},
+{q:"Tasniflashda modelni tekshirishning eng yaxshi usuli?",c:["A) Cross-validation","B) Modelni qo'llash","C) Faqat statistik tahlil","D) Hisobot yozish"],a:0},
+{q:"Nazoratli o'rganishda ma'lumotlarning ishlanishi qanday?",c:["A) Faqat kirish orqali","B) Kirish va chiqish orqali mashq qilinadi","C) Faqat chiqish orqali","D) Hisoblash orqali"],a:1},
+{q:"Qaysi usulda o'rganish yakuniy maqsadga xizmat qiladi?",c:["A) Regressiya","B) Nazoratli o'rganish","C) Ma'lumotlarni arxivlash","D) Chizma tayyorlash"],a:1},
+{q:"Neyron tarmog'ining asosiy elementi nima?",c:["A) Kategoriyalar","B) Regressiya","C) Neyronlar","D) K-means"],a:2},
+{q:"Neyron tarmoqlarida qanday qatlamlar mavjud?",c:["A) Hisobot va saqlash qatlamlari","B) Fayl va kategoriya qatlamlari","C) Model va grafik qatlamlari","D) Kirish, yashirin, chiqish qatlamlari"],a:3},
+{q:"Deep Learning (Chuqur o'rganish) nima?",c:["A) Ko'p qatlamli neyron tarmoqlar yordamida o'rganish","B) Ma'lumotlarni tozalash","C) Modelni tahlil qilish","D) Kategoriyalarni ajratish"],a:0},
+{q:"KNN algoritmi nima uchun samarali?",c:["A) O'zgartirishlar qilish","B) Kompleks model qurish","C) Yangi ma'lumotlar kiritish","D) Oddiy va tushunarli bo'lganligi uchun"],a:3},
+{q:"SVM (Support Vector Machine) nima?",c:["A) Kategoriyali ma'lumotlarni tasniflash uchun ishlatiladigan algoritm","B) Ma'lumotlarni arxivlash","C) Faylni saqlash","D) Vizualizatsiya qilish"],a:0},
+{q:"SVM qanday ishlaydi?",c:["A) Ma'lumotlarni to'g'ri formatda ajratadi","B) O'zgartirishlarni qilish","C) Ma'lumotlarni tasniflash uchun optimal chiziqlarni topadi","D) Grafik shaklida ko'rsatadi"],a:2},
+{q:"SVM ning asosiy maqsadi nima?",c:["A) Ma'lumotlarni ikki sinfga ajratish uchun maksimal chegara topish","B) Ma'lumotlarni to'liq saqlash","C) Xatoliklarni aniqlash","D) Ranglarni tahlil qilish"],a:0},
+{q:"Ma'lumotlar fanining foydasi:",c:["A) Xarajatni oshiradi","B) Qarorlarni yaxshilaydi","C) Vaqtni oladi","D) Murakkablashtiradi"],a:1},
+{q:"Data Science jarayonining oxirgi bosqichi:",c:["A) Tozalash","B) Integratsiya","C) Natijani talqin qilish","D) Ma'lumot yig'ish"],a:2},
+{q:"Data Science qaysi texnologiyalarga tayanadi?",c:["A) AI va ML","B) Faqat Excel","C) Matn muharriri","D) Grafik dizayn"],a:0},
+{q:"Big Data da ishlash uchun nima kerak?",c:["A) Daftar","B) Qalam","C) Kuchli hisoblash","D) Printer"],a:2},
+{q:"Big Data ning yana bir \"V\" si:",c:["A) Voice","B) Version","C) View","D) Veracity"],a:3},
+{q:"Big Data asosan nimaga xizmat qiladi?",c:["A) Saqlash","B) Tahlil va bashorat","C) Chop etish","D) Nusxa olish"],a:1},
+{q:"Tozalashda ishlatiladigan til:",c:["A) Python","B) HTML","C) CSS","D) XML"],a:0},
+{q:"Tozalash natijasi:",c:["A) Chizma","B) Ko'p xato","C) Sifatli ma'lumot","D) Hisobot"],a:2},
+{q:"Tozalash jarayoni:",c:["A) Keraksiz","B) Faqat qo'lda","C) Faqat avtomatik","D) Avtomatik yoki qo'lda"],a:3},
+{q:"Transformatsiyada normalizatsiya nima?",c:["A) Qiymatlarni bir xil oraliqqa keltirish","B) O'chirish","C) Saqlash","D) Chizma"],a:0},
+{q:"Integratsiya qaysi sohada muhim?",c:["A) Dizaynda","B) Rasm chizishda","C) O'yinlarda","D) Bank tizimlarida"],a:3},
+{q:"ETL jarayonining oxirgi bosqichi:",c:["A) Load","B) Extract","C) Transform","D) Clean"],a:0},
+{q:"Statistik xulosa nimaga asoslanadi?",c:["A) Taxminga","B) Fikrga","C) Ma'lumotlarga","D) Rangga"],a:2},
+{q:"Deskriptiv statistika vazifasi:",c:["A) Bashorat qilish","B) Ma'lumotni tavsiflash","C) Model qurish","D) Klassifikatsiya"],a:1},
+{q:"Statistik tahlil natijasi:",c:["A) O'yin","B) Printer","C) Fayl","D) Xulosa"],a:3},
+{q:"R² nimani ko'rsatadi?",c:["A) Model aniqligini","B) Rangni","C) Vaqtni","D) Hajmni"],a:0},
+{q:"Scatter plot qayerda ishlatiladi?",c:["A) Audio","B) Matn yozishda","C) Korrelatsiyani ko'rishda","D) Video"],a:2},
+{q:"Regressiya bu:",c:["A) Assotsiatsiya","B) Nazoratsiz","C) Klasterlash","D) Nazoratli o'rganish"],a:3},
+{q:"Vizualizatsiyaning qaysi turi o'zgaruvchilar orasidagi bog'lanishlarni ko'rsatadi?",c:["A) Pirog diagramma","B) Scatter plot (Tarqalish diagrammasi)","C) Box plot","D) Histogramma"],a:1},
+{q:"Grafika yordamida qaysi turdagi ma'lumotlarni o'rganish mumkin?",c:["A) Chiziqli munosabatlar","B) Faqat nominal ma'lumotlar","C) Yalpi raqamlar","D) Tizimli ma'lumotlar"],a:0},
+{q:"Power BI nima?",c:["A) Dasturlash tili","B) O'yin dasturi","C) Ma'lumotlarni vizualizatsiya qilish vositasi","D) Matn tahrirlovchisi"],a:2},
+{q:"Qaysi algoritm tasniflash va regressiyaga bir vaqtning o'zida ishlatiladi?",c:["A) K-means","B) Linear Regression","C) Naive Bayes","D) Support Vector Machine"],a:3},
+{q:"SVM (Support Vector Machine) nima?",c:["A) Klasterlash usuli","B) Tasniflash va regressiya uchun ishlatiladigan algoritm","C) Ma'lumotlarni saqlash usuli","D) Modelni tahlil qilish"],a:1},
+{q:"SVM qanday ishlaydi?",c:["A) Ma'lumotni to'g'ri chegaralar bilan ajratadi","B) Regressiya natijasini chiqaradi","C) Kategoriyalarni to'g'ri ko'rsatadi","D) Chizma tayyorlaydi"],a:0},
+{q:"SVM qaysi sohalarda ishlatiladi?",c:["A) Faqat tasniflash","B) Tasniflash, regressiya va anomaliya aniqlash","C) Faqat klasterlash","D) Faoliyatni optimallashtirish"],a:1}        ];
+
+        let currentQuestions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answered = false;
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function startQuiz() {
+            currentQuestions = shuffleArray(questions);
+            currentQuestionIndex = 0;
+            score = 0;
+            
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('quizScreen').style.display = 'block';
+            document.getElementById('resultScreen').style.display = 'none';
+            
+            showQuestion();
+        }
+
+        function showQuestion() {
+            answered = false;
+            const question = currentQuestions[currentQuestionIndex];
+            
+            document.getElementById('questionNumber').textContent = `Savol ${currentQuestionIndex + 1} / ${currentQuestions.length}`;
+            document.getElementById('question').textContent = question.q;
+            
+            const optionsHtml = question.c.map((option, index) => 
+                `<div class="option" onclick="selectAnswer(${index})">${option}</div>`
+            ).join('');
+            
+            document.getElementById('options').innerHTML = optionsHtml;
+            document.getElementById('nextBtn').style.display = 'none';
+            
+            const progress = ((currentQuestionIndex) / currentQuestions.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function selectAnswer(selectedIndex) {
+            if (answered) return;
+            
+            answered = true;
+            const question = currentQuestions[currentQuestionIndex];
+            const options = document.querySelectorAll('.option');
+            
+            options.forEach((option, index) => {
+                option.classList.add('disabled');
+                if (index === question.a) {
+                    option.classList.add('correct');
+                }
+                if (index === selectedIndex && selectedIndex !== question.a) {
+                    option.classList.add('wrong');
+                }
+            });
+            
+            if (selectedIndex === question.a) {
+                score++;
+            }
+            
+            document.getElementById('nextBtn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            
+            if (currentQuestionIndex < currentQuestions.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            const percentage = Math.round((score / currentQuestions.length) * 100);
+            
+            document.getElementById('quizScreen').style.display = 'none';
+            document.getElementById('resultScreen').style.display = 'block';
+            
+            document.getElementById('scorePercentage').textContent = percentage + '%';
+            document.getElementById('scoreDetails').textContent = `${score} / ${currentQuestions.length} to'g'ri javob`;
+        }
+
+        function restartQuiz() {
+            startQuiz();
+        }
+    </script>
+</body>
+</html>
